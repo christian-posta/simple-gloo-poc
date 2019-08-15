@@ -1,0 +1,30 @@
+apiVersion: gateway.solo.io.v2/v2
+kind: Gateway
+metadata:
+  annotations:
+    origin: default
+  name: gateway
+  namespace: gloo-system
+spec:
+  bindAddress: '::'
+  bindPort: 8080
+  gatewayProxyName: gateway-proxy-v2
+  httpGateway: {}
+  plugins:
+    accessLoggingService:
+      accessLog:
+      - fileSink:
+          path: /dev/stdout
+          jsonFormat:
+            startTime: "%START_TIME%"
+            httpMethod: "%REQ(:METHOD)%"
+            path: "%REQ(X-ENVOY-ORIGINAL-PATH?:PATH)%"
+            protocol: "%PROTOCOL%"
+            responseCode: "%RESPONSE_CODE%"
+            duration: "%DURATION%"
+            xff: "%REQ(X-FORWARDED-FOR)%" 
+            userAgent: "%REQ(USER-AGENT)%"
+            authority: "%REQ(:AUTHORITY)%"
+            upstreamHost: "%UPSTREAM_HOST%"
+            customHeader: "%REQ(custom-header-here)%"
+  useProxyProto: false

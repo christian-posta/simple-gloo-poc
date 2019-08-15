@@ -1,0 +1,19 @@
+apiVersion: gateway.solo.io/v1
+kind: VirtualService
+metadata:
+  name: default
+spec:
+  virtualHost:
+    domains:
+    - 'default.test'
+    routes:
+    - matcher:
+        exact: /petstore
+      routeAction:
+        single:
+          upstream:
+            name: default-petstore-8080
+            namespace: gloo-system
+      routePlugins:
+        prefixRewrite:
+          prefixRewrite: /api/pets

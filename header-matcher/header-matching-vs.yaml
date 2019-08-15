@@ -1,0 +1,28 @@
+
+apiVersion: gateway.solo.io/v1
+kind: VirtualService
+metadata:
+  name: header-present-vs
+  namespace: gloo-system
+spec:
+  virtualHost:
+    domains:
+      - 'use.case.headermatch'
+    routes:
+      - matcher:
+          exact: /petstore
+          headers:
+            - name: authorization
+        routeAction:
+          single:
+            upstream:
+              name: default-petstore-8080
+              namespace: gloo-system
+        routePlugins:
+          prefixRewrite:
+            prefixRewrite: /api/pets    
+      - matcher:
+          prefix: /
+        directResponseAction:
+          status: 405
+          body: '<Payload contentType="application/json">{"Error" : "{fault.name}", "ErrorCode" : "405", "ErrorDesc" : "Method Not Allowed" }</Payload>'          

@@ -1,0 +1,55 @@
+
+apiVersion: gateway.solo.io/v1
+kind: VirtualService
+metadata:
+  name: test-direct-response
+  namespace: gloo-system
+spec:
+  virtualHost:
+    domains:
+      - 'use.case.directresponse'
+    routes:
+      - matcher:
+          methods:
+            - POST
+          exact: /refer_a_friend/shorturls
+        routeAction:
+          single:
+            upstream:
+              name: default-petstore-8080
+              namespace: gloo-system
+        routePlugins:
+          prefixRewrite:
+            prefixRewrite: /api/pets    
+      - matcher:
+          methods:
+            - GET
+          regex: /campaigns/[0-9]+/products/[0-9]+/eligibility/.*
+        routeAction:
+          single:
+            upstream:
+              name: default-petstore-8080
+              namespace: gloo-system
+        routePlugins:
+          prefixRewrite:
+            prefixRewrite: /api/pets        
+      - matcher:
+          methods:
+            - DELETE
+            - POST
+            - OPTIONS
+            - PUT
+          regex: /campaigns/[0-9]+/products/[0-9]+/eligibility/.*
+        directResponseAction:
+          status: 405
+          body: '<Payload contentType="application/json">{"Error" : "{fault.name}", "ErrorCode" : "405", "ErrorDesc" : "Method Not Allowed" }</Payload>'                                 
+      - matcher:
+          prefix: /refer_a_friend/shorturls
+        directResponseAction:
+          status: 405
+          body: '<Payload contentType="application/json">{"Error" : "{fault.name}", "ErrorCode" : "405", "ErrorDesc" : "Method Not Allowed" }</Payload>'
+      - matcher:
+          prefix: /
+        directResponseAction:
+          status: 405
+          body: '<Payload contentType="application/json">{"Error" : "{fault.name}", "ErrorCode" : "405", "ErrorDesc" : "Method Not Allowed" }</Payload>'          

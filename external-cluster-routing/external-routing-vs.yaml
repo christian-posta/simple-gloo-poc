@@ -1,0 +1,18 @@
+
+apiVersion: gateway.solo.io/v1
+kind: VirtualService
+metadata:
+  name: test-header
+  namespace: gloo-system
+spec:
+  virtualHost:
+    domains:
+      - 'use.case.extrouting'
+    routes:
+      - matcher:
+          prefix: /
+        routeAction:
+          single:
+            upstream:
+              name: json-upstream
+              namespace: gloo-system
